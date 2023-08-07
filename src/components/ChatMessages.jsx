@@ -17,10 +17,13 @@ import {
     orderBy,
     onSnapshot,
     limit,
+    getDocs,
+    deleteDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import Message from "./Message";
 import SendMessage from "./SendMessage";
+
 function ChatMessages() {
     const [messages, setMessages] = useState([]);
     const scroll = useRef();
@@ -41,12 +44,23 @@ function ChatMessages() {
                 (a, b) => a.createdAt - b.createdAt
             );
             setMessages(sortedMessages);
-            if (scroll.current) {
-                scroll.current.scrollbar.scrollTo(0, scroll.current.scrollbar.limit.y);
-            }
         });
         return () => unsubscribe;
-    }, [messages]);
+    }, []);
+
+    const handleClearChat = async () => {
+        try {
+            const q = query(collection(db, "messages"));
+            const querySnapshot = await getDocs(q);
+
+            querySnapshot.forEach(async (doc) => {
+                await deleteDoc(doc.ref);
+            });
+        } catch (error) {
+            console.error("Error clearing chat: ", error);
+        }
+    };
+
     return (
         <div className="col-md-8 col-lg-9 pb-5 mb-lg-2 mb-lg-4 pt-md-5 mt-n3 mt-md-0">
             <div className="ps-md-3 mt-md-2 pt-md-4 pb-md-2">
@@ -223,7 +237,7 @@ function ChatMessages() {
                                             <a href="#" className="dropdown-item">Block user</a>
                                         </div>
                                     </div>
-                                    <button type="button" className="btn btn-outline-danger d-none d-sm-inline-flex px-2 px-sm-3 ms-1">
+                                    <button type="button"  onClick={handleClearChat} className="btn btn-outline-danger d-none d-sm-inline-flex px-2 px-sm-3 ms-1">
                                         <i className="bx bx-trash-alt fs-xl me-xl-2"></i>
                                         <span className="d-none d-xl-inline">Clear chat</span>
                                     </button>
@@ -239,7 +253,7 @@ function ChatMessages() {
                                 {messages?.map((message) => (
                                     <Message key={message.id} message={message} />
                                 ))}</Scrollbar>
-                            <SendMessage />
+                            <SendMessage scroll={scroll}/>
                         </div>
                     </div>
                 </div>
