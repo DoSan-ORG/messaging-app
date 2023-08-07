@@ -1,100 +1,62 @@
 import React from "react";
 import { auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
-import avatar20 from '../assets/images/avatar/20.jpg';
-import Scrollbar from 'react-smooth-scrollbar';
 
 function Message({ message }) {
   const [user] = useAuthState(auth);
+  const isMyMessage = user && message.uid === user.uid;
+
+  const messageWrapperClass = isMyMessage
+    ? 'd-flex align-items-start justify-content-end mb-3'
+    : 'd-flex align-items-start mb-3';
+
+  const messageBubbleClass = isMyMessage
+    ? 'bg-primary text-light p-3 mb-1'
+    : 'bg-secondary p-3 mb-1';
+
+  const textAlignment = isMyMessage ? 'text-right' : '';
+
+  const checkIcon = isMyMessage ? (
+    <i className="bx bx-check-double fs-xl text-primary ms-2"></i>
+  ) : null;
+  
+  const messageDate = message.createdAt ?  new Intl.DateTimeFormat('en-US', {month: 'long', day: 'numeric', year: 'numeric'}).format(message.createdAt): '';
+  const messageTime = message.createdAt ? new Intl.DateTimeFormat('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(message.createdAt): '';
   return (
     <div>
       {/* ito yung mga may messages */}
-     
       <div className="swiper-wrapper">
         <div className="swiper-slide v-auto">
-          <div className="fs-sm text-muted text-center mb-3">November 27, 2025</div>
-          <div className="d-flex align-items-start mb-3">
-            <img src={avatar20} className="rounded-circle" width="40" alt="Albert Flores" />
-            <div className="ps-2 ms-1" style={{ maxwidth: '348px' }}>
-              <div className="bg-secondary p-3 mb-1"
-                style={{
-                  borderTopRightRadius: '.5rem',
-                  borderBottomRightRadius: '.5rem',
-                  borderBottomLeftRadius: '.5rem'
-                }}>Tellus, ipsum, commodo, dui ac. Ultrices mi arcu orci aliquam et.</div>
-              <div className="fs-sm text-muted">09:04 am</div>
-            </div>
-          </div>
-
-          <div className="d-flex align-items-start justify-content-end mb-3">
-            <div className="pe-2 me-1" style={{ maxwidth: '348px' }}>
-              <div className="bg-primary text-light p-3 mb-1" style={{
-                borderTopRightRadius: '.5rem',
-                borderBottomRightRadius: '.5rem',
-                borderBottomLeftRadius: '.5rem'
-              }}><div className="chat-bubble__right">
+          <div className="fs-sm text-muted text-center mb-3">{messageDate}</div>
+          <div className={messageWrapperClass}>
+            {!isMyMessage && (
+              <img src={message.avatar} className="rounded-circle" width="40" alt="Other User" />
+            )}
+            <div
+              className="pe-2 me-1"
+              style={{
+                maxWidth: '348px'
+              }}
+            >
+              <div className={messageBubbleClass}>
+                <div className={`chat-bubble__${isMyMessage ? 'right' : 'left'}`}>
                   {message.text}
-                </div></div>
-
-              <div className="d-flex justify-content-end align-items-center fs-sm text-muted">
-                10:36 am
-                <i className="bx bx-check-double fs-xl text-primary ms-2"></i>
+                </div>
+              </div>
+              <div className={`d-flex justify-content-end align-items-center fs-sm text-muted ${textAlignment}`}>
+                {messageTime}
+                {checkIcon}
               </div>
             </div>
-            <img src={message.avatar} className="rounded-circle" width="40" alt="Albert Flores" />
-          </div>
-
-          <div className="d-flex align-items-start mb-3">
-            <img src={avatar20} className="rounded-circle" width="40" alt="Albert Flores" />
-            <div className="ps-2 ms-1" style={{ maxwidth: '348px' }}>
-              <div className="bg-secondary p-3 mb-1"
-                style={{
-                  borderTopRightRadius: '.5rem',
-                  bosrderBottomRightRadius: '.5rem',
-                  borderBottomLeftRadius: '.5rem'
-                }}>Blandit tempus, erat cum amet viverra pharetra, morbi. Vivamus pretium tristique amet, nulla aenean sed blandit?</div>
-              <div className="fs-sm text-muted">14:48 pm</div>
-            </div>
-          </div>
-
-          <div className="d-flex align-items-start justify-content-end mb-3">
-            <div className="pe-2 me-1" style={{ maxwidth: '348px' }}>
-              <div className="bg-primary text-light p-3 mb-1" style={{
-                borderTopRightRadius: '.5rem',
-                borderBottomRightRadius: '.5rem',
-                borderBottomLeftRadius: '.5rem'
-              }}>Vel enim lacus, ac, fermentum, id. Aliquet faucibus pellentesque egestas.</div>
-              <div className="bg-primary text-light p-3 mb-1" style={{
-                borderTopRightRadius: '.5rem',
-                borderBottomRightRadius: '.5rem',
-                borderBottomLeftRadius: '.5rem'
-              }}>Thank you!</div>
-              <div className="d-flex justify-content-end align-items-center fs-sm text-muted">
-                16:29 pm
-                <i className="bx bx-check fs-xl text-primary ms-2"></i>
-              </div>
-            </div>
-            <img src={message.avatar} className="rounded-circle" width="40" alt="Albert Flores" />
-          </div>
-
-          <div className="fs-sm text-muted text-center mb-3">November 28, 2021</div>
-
-          <div className="d-flex align-items-start mb-3">
-            <img src={avatar20} className="rounded-circle" width="40" alt="Albert Flores" />
-            <div className="ps-2 ms-1" style={{ maxwidth: '348px' }}>
-              <div className="bg-secondary p-3 mb-1" style={{
-                borderTopRightRadius: '.5rem',
-                borderBottomRightRadius: '.5rem',
-                borderBottomLeftRadius: '.5rem'
-              }}>You are welcome 😊</div>
-              <div className="fs-sm text-muted">17:33 pm</div>
-            </div>
+            {isMyMessage && (
+              <img src={message.avatar} className="rounded-circle" width="40" alt={message.name} />
+            )}
           </div>
         </div>
       </div>
       <div className="swiper-scrollbar end-0"></div>
     </div>
   );
-};
+}
 
 export default Message;

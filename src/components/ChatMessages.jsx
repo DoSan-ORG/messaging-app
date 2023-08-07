@@ -41,9 +41,12 @@ function ChatMessages() {
                 (a, b) => a.createdAt - b.createdAt
             );
             setMessages(sortedMessages);
+            if (scroll.current) {
+                scroll.current.scrollbar.scrollTo(0, scroll.current.scrollbar.limit.y);
+            }
         });
         return () => unsubscribe;
-    }, []);
+    }, [messages]);
     return (
         <div className="col-md-8 col-lg-9 pb-5 mb-lg-2 mb-lg-4 pt-md-5 mt-n3 mt-md-0">
             <div className="ps-md-3 mt-md-2 pt-md-4 pb-md-2">
@@ -231,6 +234,7 @@ function ChatMessages() {
                                 thumbMinSize={50}
                                 renderByPixels={true}
                                 continuousScrolling={true}
+                                ref={scroll}
                             >
                                 {messages?.map((message) => (
                                     <Message key={message.id} message={message} />
