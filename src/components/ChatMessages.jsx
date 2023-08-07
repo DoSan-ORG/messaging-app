@@ -71,7 +71,6 @@ function ChatMessages() {
                                     damping={0.1}
                                     thumbMinSize={20}
                                     renderByPixels={true}
-                                    alwaysShowTracks={true}
                                     continuousScrolling={true}
                                 >
                                     <a href="#" className="d-flex align-items-start border-bottom text-decoration-none bg-faded-primary-hover py-3 px-4">
@@ -231,7 +230,6 @@ function ChatMessages() {
                                 damping={0.1}
                                 thumbMinSize={50}
                                 renderByPixels={true}
-                                alwaysShowTracks={true}
                                 continuousScrolling={true}
                             >
                                 {messages?.map((message) => (

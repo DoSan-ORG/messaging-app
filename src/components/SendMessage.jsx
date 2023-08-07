@@ -20,7 +20,6 @@ function SendMessage({ scroll }) {
       uid,
     });
     setMessage("");
-    scroll.current.scrollIntoView({ behavior: "smooth" });
   };
   return (
     <div>
@@ -40,14 +39,14 @@ function SendMessage({ scroll }) {
             <button type="button" className="btn btn-icon btn-sm btn-link nav-link bg-faded-primary-hover">
               <i className="bx bx-smile fs-4"></i>
             </button>
-          </div>
-          <button type="button" className="btn btn-primary btn-icon btn-lg d-none d-sm-inline-flex ms-1">
+            <button type="button" className="btn btn-primary btn-icon btn-lg d-none d-sm-inline-flex ms-1">
           <i className="bx bx-send"></i>
         </button>
         <button type="submit" className="btn btn-primary btn-lg w-100 d-sm-none">
           <i className="bx bx-send fs-xl me-2"></i>
           Send
         </button>
+          </div>
         </form>
       </div>
     </div>
