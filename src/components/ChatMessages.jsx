@@ -41,17 +41,26 @@ function ChatMessages() {
         return () => unsubscribe();
     }, []);
 
+    const handleContactSelect = (contact) => {
+        setActiveContactData(contact);
+      };
+    useEffect(() => {
+        const fetchContacts = async () => {
+            const q = collection(db, 'users');
+            const querySnapshot = await getDocs(q);
+            const fetchedContacts = querySnapshot.docs.map((doc) => doc.data());
+            setContacts(fetchedContacts);
+        };
 
-  useEffect(() => {
-    const fetchContacts = async () => {
-      const q = collection(db, 'users');
-      const querySnapshot = await getDocs(q);
-      const fetchedContacts = querySnapshot.docs.map((doc) => doc.data());
-      setContacts(fetchedContacts);
-    };
-
-    fetchContacts();
-  }, []);
+        fetchContacts();
+    }, []);
+    const filteredMessages = messages
+  .filter(
+    (message) =>
+      (message.contact_uid === activeContactData?.uid && message.uid === auth.currentUser.uid) ||
+      (message.contact_uid === auth.currentUser.uid && message.uid === activeContactData?.uid)
+  )
+  .sort((a, b) => a.createdAt - b.createdAt);
 
     const handleClearChat = async () => {
         try {
@@ -65,6 +74,9 @@ function ChatMessages() {
             console.error('Error clearing chat: ', error);
         }
     };
+
+    console.log(activeContactData,'===activeContactData')
+    console.log(messages,'===messages')
     return (
         <div className="col-md-8 col-lg-9 pb-5 mb-lg-2 mb-lg-4 pt-md-5 mt-n3 mt-md-0">
             <div className="ps-md-3 mt-md-2 pt-md-4 pb-md-2">
@@ -105,37 +117,39 @@ function ChatMessages() {
                                     thumbMinSize={20}
                                     renderByPixels={true}
                                     continuousScrolling={true}
+                                    className="message-container"
                                 >
-                                    
+
                                     {contacts
-        .filter((contact) => contact.displayName !== auth.currentUser.displayName) // Filter out your own profile
-        .map((contact, i) => (
-                                        <a
-                                            key={i}
-                                            href="#"
-                                            className="d-flex align-items-start border-bottom text-decoration-none bg-faded-primary-hover py-3 px-4"
-                                        >
-                                            <img
-                                                src={contact.photoURL}
-                                                className="rounded-circle"
-                                                width="40"
-                                                alt={contact.displayName}
-                                            />
-                                            <div className="w-100 ps-2 ms-1">
-                                                <div className="d-flex align-items-center justify-content-between mb-1">
-                                                    <h6 className="mb-0 me-2">
-                                                        {contact.displayName}
-                                                    </h6>
-                                                    <span className="fs-xs text-muted">
-                                                        18:02
-                                                    </span>
+                                        .filter((contact) => contact.displayName !== auth.currentUser.displayName) // Filter out your own profile
+                                        .map((contact, i) => (
+                                            <a
+                                                key={i}
+                                                href="#"
+                                                className="d-flex align-items-start border-bottom text-decoration-none bg-faded-primary-hover py-3 px-4"
+                                                onClick={() => handleContactSelect(contact)} 
+                                            >
+                                                <img
+                                                    src={contact.photoURL}
+                                                    className="rounded-circle"
+                                                    width="40"
+                                                    alt={contact.displayName}
+                                                />
+                                                <div className="w-100 ps-2 ms-1">
+                                                    <div className="d-flex align-items-center justify-content-between mb-1">
+                                                        <h6 className="mb-0 me-2">
+                                                            {contact.displayName}
+                                                        </h6>
+                                                        <span className="fs-xs text-muted">
+                                                            18:02
+                                                        </span>
+                                                    </div>
+                                                    <p className="fs-sm text-body mb-0">
+                                                        Typing..
+                                                    </p>
                                                 </div>
-                                                <p className="fs-sm text-body mb-0">
-                                                    Typing..
-                                                </p>
-                                            </div>
-                                        </a>
-                                    ))}
+                                            </a>
+                                        ))}
                                 </Scrollbar>
                             </div>
                             <div className="swiper-scrollbar end-0"></div>
@@ -149,7 +163,7 @@ function ChatMessages() {
                                     {activeContactData && (
                                         <>
                                             <img
-                                                src={activeContactData.avatar}
+                                                src={activeContactData.photoURL}
                                                 className="rounded-circle"
                                                 width="40"
                                                 alt={activeContactData.displayName}
@@ -217,11 +231,11 @@ function ChatMessages() {
                                 continuousScrolling={true}
                                 ref={scroll}
                             >
-                                {messages?.map((message) => (
+                                {filteredMessages?.map((message) => (
                                     <Message key={message.id} message={message} />
                                 ))}
                             </Scrollbar>
-                            <SendMessage scroll={scroll} />
+                            <SendMessage contactId={activeContactData}/>
                         </div>
                     </div>
                 </div>

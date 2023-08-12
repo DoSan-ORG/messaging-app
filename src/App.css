@@ -85,17 +85,45 @@ input {
   align-items: flex-start;
   margin-bottom: 20px;
 }
+
 .chat-bubble.right {
   margin-left: auto;
   border-radius: 20px 20px 0 20px;
   background-color: #fff;
   box-shadow: -2px 2px 1px 1px #88dded;
 }
+
 .chat-bubble__left {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  margin-right: 10px;
+  min-height: 60px; /* Set a minimum height */
+  max-height: 200px; /* Set a reduced maximum height */
+  overflow-y: auto; /* Add a vertical scrollbar if content exceeds container height */
+  word-wrap: break-word; /* Break long words */
+}
+
+.message-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.message {
+    max-width: 70%;
+    border-radius: 15px;
+    padding: 8px 12px;
+    background-color: #e5e5ea;
+    align-self: flex-start;
+}
+
+.my-message {
+    max-width: 70%;
+    border-radius: 15px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: #fff;
+    align-self: flex-end;
 }
 .user-name {
   font-weight: bold;

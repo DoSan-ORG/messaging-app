@@ -17,6 +17,7 @@ function SignIn() {
         email,
         photoURL,
         lastActive: serverTimestamp(),
+        uid,
       });
     } catch (error) {
       console.error('Error signing in with Google:', error);
