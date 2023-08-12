@@ -66,4 +66,10 @@ button:focus-visible {
   .rounded-circle {
     border-radius: 50% !important
   }
+  .container {
+    height: 100px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+  }
 }

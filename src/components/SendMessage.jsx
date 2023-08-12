@@ -24,8 +24,6 @@ function SendMessage({ scroll }) {
 
     setMessage("");
 
-    // Scroll to the bottom of the chat after sending a message
-    scroll.current.scrollIntoView({ behavior: "smooth" });
   };
 
   return (

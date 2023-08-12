@@ -1,4 +1,3 @@
-import avatar18 from '../assets/images/avatar/18.jpg';
 import { auth } from "../firebase";
 import ChatMessages from './ChatMessages';
 
@@ -64,7 +63,8 @@ function UserSideBar() {
                         </div>
                     </div>
                 </aside>
-                <ChatMessages/>
+                <ChatMessages
+/>
             </div>
         </section>
     );
