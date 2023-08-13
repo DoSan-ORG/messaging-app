@@ -1,8 +1,7 @@
-import React from "react";
 import { auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
-
-function Message({ message }) {
+import React, { useEffect, useRef, useState } from 'react';
+function Message({ message, scroll}) {
   const [user] = useAuthState(auth);
   const isMyMessage = user && message.uid === user.uid;
 
@@ -22,6 +21,13 @@ function Message({ message }) {
   
   const messageDate = message.createdAt ?  new Intl.DateTimeFormat('en-US', {month: 'long', day: 'numeric', year: 'numeric'}).format(message.createdAt): '';
   const messageTime = message.createdAt ? new Intl.DateTimeFormat('en-US', {hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(message.createdAt): '';
+
+  useEffect(() => {
+    if (scroll.current && scroll.current.scrollbar) {
+        scroll.current.scrollbar.scrollTo(0, scroll.current.scrollbar.limit.y, 0);
+    }
+}, [scroll, message]);
+
   return (
     <div>
       {/* ito yung mga may messages */}

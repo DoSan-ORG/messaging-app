@@ -196,3 +196,17 @@ input {
   left: 50%;
   transform: translateX(-50%);
 }
+
+.active-contact {
+  position: relative;
+}
+
+.active-contact::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background-color: blue; /* Adjust the color as needed */
+}

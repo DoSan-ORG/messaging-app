@@ -18,32 +18,9 @@ function ChatMessages() {
     const [messages, setMessages] = useState([]);
     const scroll = useRef();
     const [activeContactData, setActiveContactData] = useState(null);
+    const [activeContactIndex, setActiveContactIndex] = useState(-1);
     const [contacts, setContacts] = useState([]);
 
-    useEffect(() => {
-        const q = query(
-            collection(db, 'messages'),
-            orderBy('createdAt', 'desc'),
-            limit(50)
-        );
-
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const fetchedMessages = [];
-            querySnapshot.forEach((doc) => {
-                fetchedMessages.push({ ...doc.data(), id: doc.id });
-            });
-            const sortedMessages = fetchedMessages.sort(
-                (a, b) => a.createdAt - b.createdAt
-            );
-            setMessages(sortedMessages);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    const handleContactSelect = (contact) => {
-        setActiveContactData(contact);
-      };
     useEffect(() => {
         const fetchContacts = async () => {
             const q = collection(db, 'users');
@@ -52,16 +29,64 @@ function ChatMessages() {
             setContacts(fetchedContacts);
         };
 
+        const fetchMessages = async () => {
+            const q = query(
+                collection(db, 'messages'),
+                orderBy('createdAt', 'desc'),
+                limit(50)
+            );
+
+            const unsubscribe = onSnapshot(q, (querySnapshot) => {
+                const fetchedMessages = [];
+                querySnapshot.forEach((doc) => {
+                    fetchedMessages.push({ ...doc.data(), id: doc.id });
+                });
+                const sortedMessages = fetchedMessages.sort(
+                    (a, b) => a.createdAt - b.createdAt
+                );
+                setMessages(sortedMessages);
+                const contactsWithLastMessages = contacts.map((contact) => {
+                    const lastMessage = sortedMessages.find(
+                        (message) =>
+                            (message.contact_uid === auth.currentUser.uid && message.contact_uid === contact.uid) ||
+                            (message.contact_uid === contact.uid && message.contact_uid === auth.currentUser.uid)
+                    );
+                    return { ...contact, lastMessage };
+                });
+
+                if (contactsWithLastMessages.length > 0) {
+                    const latestContactWithLastMessage = contactsWithLastMessages.reduce(
+                        (prev, current) =>
+                            prev.lastMessage?.createdAt > current.lastMessage?.createdAt ? prev : current,
+                        contactsWithLastMessages
+                    );
+                    setActiveContactData(latestContactWithLastMessage);
+
+                    if (scroll.current && scroll.current.scrollbar) {
+                        scroll.current.scrollbar.scrollTo(0, scroll.current.scrollbar.limit.y, 0);
+                    }
+
+                }
+
+
+
+            });
+            return () => unsubscribe();
+        };
+
         fetchContacts();
+        fetchMessages();
     }, []);
     const filteredMessages = messages
-  .filter(
-    (message) =>
-      (message.contact_uid === activeContactData?.uid && message.uid === auth.currentUser.uid) ||
-      (message.contact_uid === auth.currentUser.uid && message.uid === activeContactData?.uid)
-  )
-  .sort((a, b) => a.createdAt - b.createdAt);
-
+        .filter(
+            (message) =>
+                (message.contact_uid === activeContactData?.uid && message.uid === auth.currentUser.uid) ||
+                (message.contact_uid === auth.currentUser.uid && message.uid === activeContactData?.uid)
+        )
+        .sort((a, b) => a.createdAt - b.createdAt);
+    const handleContactSelect = (contact) => {
+        setActiveContactData(contact);
+    };
     const handleClearChat = async () => {
         try {
             const q = query(collection(db, 'messages'));
@@ -75,8 +100,6 @@ function ChatMessages() {
         }
     };
 
-    console.log(activeContactData,'===activeContactData')
-    console.log(messages,'===messages')
     return (
         <div className="col-md-8 col-lg-9 pb-5 mb-lg-2 mb-lg-4 pt-md-5 mt-n3 mt-md-0">
             <div className="ps-md-3 mt-md-2 pt-md-4 pb-md-2">
@@ -111,7 +134,7 @@ function ChatMessages() {
                                     <i className="bx bx-search fs-xl text-nav position-absolute top-50 end-0 translate-middle-y me-3"></i>
                                 </div>
                             </div>
-                            <div className="swiper-wrapper">
+                            <div className="swiper-slide h-auto swiper-slide-active">
                                 <Scrollbar
                                     damping={0.1}
                                     thumbMinSize={20}
@@ -121,14 +144,21 @@ function ChatMessages() {
                                 >
 
                                     {contacts
-                                        .filter((contact) => contact.displayName !== auth.currentUser.displayName) // Filter out your own profile
+                                        .filter((contact) => contact.displayName !== auth.currentUser.displayName)
                                         .map((contact, i) => (
                                             <a
                                                 key={i}
                                                 href="#"
-                                                className="d-flex align-items-start border-bottom text-decoration-none bg-faded-primary-hover py-3 px-4"
-                                                onClick={() => handleContactSelect(contact)} 
+                                                className={`d-flex align-items-start border-bottom text-decoration-none bg-faded-primary-hover py-3 px-4 ${i === activeContactIndex ? 'active-contact' : ''
+                                                    }`}
+                                                onClick={() => {
+                                                    setActiveContactIndex(i); // Set the active contact index
+                                                    handleContactSelect(contact);
+                                                }}
                                             >
+                                                {i === activeContactIndex && (
+                                                    <div className="position-absolute top-0 start-0 bg-primary w-2 h-100"></div>
+                                                )}
                                                 <img
                                                     src={contact.photoURL}
                                                     className="rounded-circle"
@@ -137,19 +167,18 @@ function ChatMessages() {
                                                 />
                                                 <div className="w-100 ps-2 ms-1">
                                                     <div className="d-flex align-items-center justify-content-between mb-1">
-                                                        <h6 className="mb-0 me-2">
-                                                            {contact.displayName}
-                                                        </h6>
+                                                        <h6 className="mb-0 me-2">{contact.displayName}</h6>
                                                         <span className="fs-xs text-muted">
-                                                            18:02
+                                                            {contact.lastMessage
+                                                                ? formatDate(contact.lastMessage.createdAt)
+                                                                : ''}
                                                         </span>
                                                     </div>
-                                                    <p className="fs-sm text-body mb-0">
-                                                        Typing..
-                                                    </p>
+                                                    {contact.lastMessage ? contact.lastMessage.text : 'No messages'}
                                                 </div>
                                             </a>
                                         ))}
+
                                 </Scrollbar>
                             </div>
                             <div className="swiper-scrollbar end-0"></div>
@@ -160,6 +189,9 @@ function ChatMessages() {
                         <div className="card h-100 border-0 bg-transparent pb-3">
                             <div className="navbar card-header d-flex align-items-center justify-content-between w-100 p-sm-4 p-3">
                                 <div className="d-flex align-items-center pe-3">
+                                    <button type="button" className="navbar-toggler d-lg-none me-3" data-bs-toggle="offcanvas" data-bs-target="#contactsList" aria-controls="contactsList" aria-label="Toggle contacts list">
+                                        <span className="navbar-toggler-icon"></span>
+                                    </button>
                                     {activeContactData && (
                                         <>
                                             <img
@@ -232,10 +264,10 @@ function ChatMessages() {
                                 ref={scroll}
                             >
                                 {filteredMessages?.map((message) => (
-                                    <Message key={message.id} message={message} />
+                                    <Message key={message.id} message={message} scroll={scroll}/>
                                 ))}
                             </Scrollbar>
-                            <SendMessage contactId={activeContactData}/>
+                            <SendMessage contactId={activeContactData} />
                         </div>
                     </div>
                 </div>

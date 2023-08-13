@@ -1,7 +1,4 @@
 import React from "react";
-import { auth } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useDispatch, useSelector } from 'react-redux';
 import { themeActions } from '../store/theme';
 function NavBar() {
