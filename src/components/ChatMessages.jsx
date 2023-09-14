@@ -187,7 +187,7 @@ function ChatMessages() {
             </div>
           </div>
           {/* chat box */}
-          <div className="col-lg-8" style={{ maxHeight: "712px" }}>
+          <div className="col-lg-8">
             <div className="card h-100 border-0 bg-transparent pb-3">
               <div className="navbar card-header d-flex align-items-center justify-content-between w-100 p-sm-4 p-3">
                 <div className="d-flex align-items-center pe-3">
@@ -275,6 +275,7 @@ function ChatMessages() {
                 renderByPixels={true}
                 continuousScrolling={true}
                 ref={scroll}
+                style={{ maxHeight: "calc(100vh - 145px)" }}
               >
                 {filteredMessages?.map((message) => (
                   <Message key={message.id} message={message} />
