@@ -19,22 +19,19 @@ function Message({ message }) {
     <i className="bx bx-check-double fs-xl text-primary ms-2"></i>
   ) : null;
 
-  const createdAt = new Date(
-    message.createdAt.seconds * 1000 + message.createdAt.nanoseconds / 1000000
-  );
-  const messageDate = createdAt
+  const messageDate = message.createdAt
     ? new Intl.DateTimeFormat("en-US", {
         month: "long",
         day: "numeric",
         year: "numeric",
-      }).format(createdAt)
+      }).format(message.createdAt.toDate()) // Ensure you convert to Date if necessary
     : "";
-  const messageTime = createdAt
+  const messageTime = message.createdAt
     ? new Intl.DateTimeFormat("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
-      }).format(createdAt)
+      }).format(message.createdAt.toDate()) // Ensure you convert to Date if necessary
     : "";
 
   useEffect(() => {
