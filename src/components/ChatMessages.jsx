@@ -27,23 +27,7 @@ function ChatMessages() {
       const querySnapshot = await getDocs(q);
       const fetchedContacts = querySnapshot.docs
         .map((doc) => doc.data())
-        .filter((contact) => {
-          // Filter out the current user and only include contacts with a chat
-          return (
-            contact.uid !== auth.currentUser.uid &&
-            messages.some(
-              (message) =>
-                (message.uid === auth.currentUser.uid &&
-                  message.contact_uid === contact.uid) ||
-                (message.uid === contact.uid &&
-                  message.contact_uid === auth.currentUser.uid)
-            )
-          );
-        });
-
-      if (fetchedContacts.length > 0) {
-        setContacts(fetchedContacts);
-      }
+        .filter((contact) => contact.uid !== auth.currentUser.uid); // Filter out the current user
       setContacts(fetchedContacts);
     };
 
@@ -90,7 +74,7 @@ function ChatMessages() {
 
     fetchContacts();
     fetchMessages();
-  }, [contacts]);
+  }, []);
   const filteredMessages = messages
     .filter(
       (message) =>
