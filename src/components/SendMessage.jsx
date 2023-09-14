@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { auth, db } from "../firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
@@ -20,11 +20,10 @@ function SendMessage({ contactId }) {
       avatar: photoURL,
       createdAt: serverTimestamp(),
       uid: auth.currentUser.uid,
-      contact_uid: contactId.uid
+      contact_uid: contactId.uid,
     });
 
     setMessage("");
-
   };
 
   return (
@@ -41,7 +40,7 @@ function SendMessage({ contactId }) {
             name="messageInput"
             type="text"
             className="form-control form-input__input form-control-lg"
-            style={{ paddingRight: '85px' }}
+            style={{ paddingRight: "85px" }}
           />
           <div className="position-absolute top-50 end-0 translate-middle-y d-flex zindex-3 me-2">
             <button
